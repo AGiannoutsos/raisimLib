@@ -111,8 +111,9 @@ with open(obs_file_path, 'w', newline='') as obs_file, open(action_file_path, 'w
         position_headers = ['update', 'step'] + \
             ['LF_HAA','LF_HFE','LF_KFE', 'RF_HAA','RF_HFE','RF_KFE', 'LH_HAA','LH_HFE','LH_KFE',  'RH_HAA','RH_HFE','RH_KFE'] + \
             [f'pos_{i}' for i in range(3)] + \
-            [f'rot_{i}' for i in range(3)]
-
+            [f'rot_{i}' for i in range(3)] + \
+            ['LF_HAA_angVel','LF_HFE_angVel','LF_KFE_angVel', 'RF_HAA_angVel','RF_HFE_angVel','RF_KFE_angVel', 'LH_HAA_angVel','LH_HFE_angVel','LH_KFE_angVel',  'RH_HAA_angVel','RH_HFE_angVel','RH_KFE_angVel'] + \
+            ['LF_HAA_force','LF_HFE_force','LF_KFE_force', 'RF_HAA_force','RF_HFE_force','RF_KFE_force', 'LH_HAA_force','LH_HFE_force','LH_KFE_force',  'RH_HAA_force','RH_HFE_force','RH_KFE_force']
         obs_writer.writerow(obs_headers)
         action_writer.writerow(action_headers)
         position_writer.writerow(position_headers)
@@ -146,6 +147,8 @@ with open(obs_file_path, 'w', newline='') as obs_file, open(action_file_path, 'w
                     position = env.getPosition()
                     orientation = env.getOrientation()
                     jointAngles = env.getJointAngles()
+                    jointAngularVelocities = env.getJointAngularVelocities()
+                    jointGeneralizedForces = env.getJointGeneralizedForces()
                     targetVelocity = env.getTargetVelocity()
                     if changing_velocity:
                         obs = np.hstack((obs, targetVelocity))
@@ -157,7 +160,13 @@ with open(obs_file_path, 'w', newline='') as obs_file, open(action_file_path, 'w
                     if capture_data:
                         obs_writer.writerow([update, step] + obs[0].tolist())
                         action_writer.writerow([update, step] + action[0].tolist())
-                        position_writer.writerow([update, step] + jointAngles[0].tolist() + position[0].tolist() + orientation[0].tolist())
+                        position_writer.writerow(
+                            [update, step] + 
+                            jointAngles[0].tolist() + 
+                            position[0].tolist() + 
+                            orientation[0].tolist() +
+                            jointAngularVelocities[0].tolist() + 
+                            jointGeneralizedForces[0].tolist())
 
                     frame_end = time.time()
                     wait_time = cfg['environment']['control_dt'] - (frame_end-frame_start)
@@ -177,6 +186,8 @@ with open(obs_file_path, 'w', newline='') as obs_file, open(action_file_path, 'w
             position = env.getPosition()
             orientation = env.getOrientation()
             jointAngles = env.getJointAngles()
+            jointAngularVelocities = env.getJointAngularVelocities()
+            jointGeneralizedForces = env.getJointGeneralizedForces()
             targetVelocity = env.getTargetVelocity()
             if changing_velocity:
                 obs = np.hstack((obs, targetVelocity))
@@ -190,7 +201,13 @@ with open(obs_file_path, 'w', newline='') as obs_file, open(action_file_path, 'w
             if capture_data and update % cfg['environment']['eval_every_n'] != 0:
                 obs_writer.writerow([update, step] + obs[0].tolist())
                 action_writer.writerow([update, step] + action[0].tolist())
-                position_writer.writerow([update, step] + jointAngles[0].tolist() + position[0].tolist() + orientation[0].tolist())
+                position_writer.writerow(
+                    [update, step] + 
+                    jointAngles[0].tolist() + 
+                    position[0].tolist() + 
+                    orientation[0].tolist() +
+                    jointAngularVelocities[0].tolist() + 
+                    jointGeneralizedForces[0].tolist())
             
         # take st step to get value obs
         obs = env.observe()

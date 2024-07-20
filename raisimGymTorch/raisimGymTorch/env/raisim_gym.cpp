@@ -26,6 +26,8 @@ PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m) {
     .def("getPosition", &VectorizedEnvironment<ENVIRONMENT>::getPosition)
     .def("getOrientation", &VectorizedEnvironment<ENVIRONMENT>::getOrientation)
     .def("getJointAngles", &VectorizedEnvironment<ENVIRONMENT>::getJointAngles)
+    .def("getJointAngularVelocities", &VectorizedEnvironment<ENVIRONMENT>::getJointAngularVelocities)
+    .def("getJointGeneralizedForces", &VectorizedEnvironment<ENVIRONMENT>::getJointGeneralizedForces)
     .def("getTargetVelocity", &VectorizedEnvironment<ENVIRONMENT>::getTargetVelocity)
     .def("step", &VectorizedEnvironment<ENVIRONMENT>::step)
     .def("setSeed", &VectorizedEnvironment<ENVIRONMENT>::setSeed)

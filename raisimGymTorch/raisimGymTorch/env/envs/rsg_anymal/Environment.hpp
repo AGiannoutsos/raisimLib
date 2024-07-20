@@ -62,6 +62,8 @@ class ENVIRONMENT : public RaisimGymEnv {
     actionDim_ = nJoints_; actionMean_.setZero(actionDim_); actionStd_.setZero(actionDim_);
     obDouble_.setZero(obDim_);
     Joint_angles.setZero(12);
+    Joint_velocities.setZero(12);
+    Joint_forces.setZero(12);
 
     /// action scaling
     actionMean_ = gc_init_.tail(nJoints_);
@@ -224,7 +226,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     // convert it to Eigen vec
     Eigen::Vector3d Robot_world_position_eigen;
     Robot_world_position_eigen << Robot_world_position[0], Robot_world_position[1], Robot_world_position[2];
-    /// convert it to float
+    // convert it to float
     po = Robot_world_position_eigen.cast<float>();
   }
 
@@ -243,7 +245,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     // convert it to Eigen vec
     Eigen::Vector3d Robot_orientation;
     Robot_orientation << euler_rot[0], euler_rot[1], euler_rot[2];
-    /// convert it to float
+    // convert it to float
     ori = Robot_orientation.cast<float>();
     delete array_quat, euler_rot;
   }
@@ -253,22 +255,51 @@ class ENVIRONMENT : public RaisimGymEnv {
     anymal_->getState(gc_, gv_);
 
     // convert it to Eigen vec
-    // Eigen::VectorXd Joint_angles;
     Joint_angles << gc_.tail(12);
-    /// convert it to float
+    // convert it to float
     ang = Joint_angles.cast<float>();
+  }
+
+  void getJointAngularVelocities(Eigen::Ref<EigenVec> angVel) {
+    // get joint velocities on their reference frame
+    anymal_->getState(gc_, gv_);
+
+    // convert it to Eigen vec
+    Joint_velocities << gv_.tail(12);
+    // convert it to float
+    angVel = Joint_velocities.cast<float>();
+  }
+
+  void getJointGeneralizedForces(Eigen::Ref<EigenVec> force) {
+
+    // get joint forces
+    raisim::VecDyn forces = anymal_->getGeneralizedForce();
+    Joint_forces[0] = forces[0 + 6];
+    Joint_forces[1] = forces[1 + 6];
+    Joint_forces[2] = forces[2 + 6];
+    Joint_forces[3] = forces[3 + 6];
+    Joint_forces[4] = forces[4 + 6];
+    Joint_forces[5] = forces[5 + 6];
+    Joint_forces[6] = forces[6 + 6];
+    Joint_forces[7] = forces[7 + 6];
+    Joint_forces[8] = forces[8 + 6];
+    Joint_forces[9] = forces[9 + 6];
+    Joint_forces[10] = forces[10 + 6];
+    Joint_forces[11] = forces[11 + 6];
+
+    force = Joint_forces.cast<float>();
   }
 
   void getTargetVelocity(Eigen::Ref<EigenVec> tVel) {
      Eigen::VectorXd target_velocity;
      target_velocity.setZero(1);
      target_velocity << radomTargetVelocity;
-    /// convert it to float
+    // convert it to float
     tVel = target_velocity.cast<float>();
   }
 
   void observe(Eigen::Ref<EigenVec> ob) final {
-    /// convert it to float
+    // convert it to float
     ob = obDouble_.cast<float>();
   }
 
@@ -300,7 +331,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   raisim::ArticulatedSystem* anymal_;
   Eigen::VectorXd gc_init_, gv_init_, gc_, gv_, pTarget_, pTarget12_, vTarget_;
   double terminalRewardCoeff_ = -10.;
-  Eigen::VectorXd actionMean_, actionStd_, obDouble_, Joint_angles;
+  Eigen::VectorXd actionMean_, actionStd_, obDouble_, Joint_angles, Joint_velocities, Joint_forces;
   Eigen::Vector3d bodyLinearVel_, bodyAngularVel_;
   std::set<size_t> footIndices_;
 

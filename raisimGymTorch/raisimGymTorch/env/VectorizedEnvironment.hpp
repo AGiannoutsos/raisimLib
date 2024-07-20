@@ -102,6 +102,16 @@ class VectorizedEnvironment {
       environments_[i]->getJointAngles(ang.row(i));
   }
 
+  void getJointAngularVelocities(Eigen::Ref<EigenRowMajorMat> &angVel) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getJointAngularVelocities(angVel.row(i));
+  }
+
+  void getJointGeneralizedForces(Eigen::Ref<EigenRowMajorMat> &force) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getJointGeneralizedForces(force.row(i));
+  }
+
   void getTargetVelocity(Eigen::Ref<EigenRowMajorMat> &tVel) {
     for (int i = 0; i < num_envs_; i++)
       environments_[i]->getTargetVelocity(tVel.row(i));
