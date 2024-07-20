@@ -19,6 +19,10 @@ class RaisimGymVecEnv:
         self.num_obs = self.wrapper.getObDim()
         self.num_acts = self.wrapper.getActionDim()
         self._observation = np.zeros([self.num_envs, self.num_obs], dtype=np.float32)
+        self._position = np.zeros([self.num_envs, 3], dtype=np.float32)
+        self._orientation = np.zeros([self.num_envs, 3], dtype=np.float32)
+        self._joint_angles = np.zeros([self.num_envs, 12], dtype=np.float32)
+        self._target_velocity = np.zeros([self.num_envs, 1], dtype=np.float32)
         self.actions = np.zeros([self.num_envs, self.num_acts], dtype=np.float32)
         self.log_prob = np.zeros(self.num_envs, dtype=np.float32)
         self._reward = np.zeros(self.num_envs, dtype=np.float32)
@@ -66,6 +70,22 @@ class RaisimGymVecEnv:
     def observe(self, update_statistics=True):
         self.wrapper.observe(self._observation, update_statistics)
         return self._observation
+    
+    def getPosition(self):
+        self.wrapper.getPosition(self._position)
+        return self._position
+    
+    def getOrientation(self):
+        self.wrapper.getOrientation(self._orientation)
+        return self._orientation
+
+    def getJointAngles(self):
+        self.wrapper.getJointAngles(self._joint_angles)
+        return self._joint_angles
+    
+    def getTargetVelocity(self):
+        self.wrapper.getTargetVelocity(self._target_velocity)
+        return self._target_velocity
 
     def get_reward_info(self):
         return self.wrapper.getRewardInfo()

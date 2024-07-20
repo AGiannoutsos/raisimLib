@@ -13,9 +13,19 @@ environment:
   action_std: 0.3
   reward:
     forwardVel:
-      coeff: 0.3
+      coeff: 0.6
     torque:
       coeff: -4e-5
+    footClearance:
+      coeff: 0.6
+    bodyHeight:
+      coeff: -0.3
+    yVel:
+      coeff: -0.3
+    zVel:
+      coeff: -0.3
+    angVelocity:
+      coeff: -0.3
 
 architecture:
   policy_net: [128, 128]

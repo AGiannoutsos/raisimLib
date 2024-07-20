@@ -7,6 +7,7 @@ import math
 import time
 import torch
 import argparse
+import datetime
 
 
 # configuration
@@ -19,12 +20,17 @@ task_path = os.path.dirname(os.path.realpath(__file__))
 home_path = task_path + "/../../../../.."
 
 # config
-cfg = YAML().load(open(task_path + "/cfg.yaml", 'r'))
+yaml = YAML()
+cfg = yaml.load(open(task_path + "/cfg.yaml", 'r'))
+import io
+buf = io.BytesIO()
+print(yaml.dump(cfg['environment'], buf))
+print(buf.getvalue())
 
 # create environment from the configuration file
 cfg['environment']['num_envs'] = 1
 
-env = VecEnv(rsg_anymal.RaisimGymEnv(home_path + "/rsc", dump(cfg['environment'], Dumper=RoundTripDumper)), cfg['environment'])
+env = VecEnv(rsg_anymal.RaisimGymEnv(home_path + "/rsc", buf.getvalue()), cfg['environment'])
 
 # shortcuts
 ob_dim = env.num_obs
@@ -53,17 +59,20 @@ else:
 
     env.load_scaling(weight_dir, int(iteration_number))
     env.turn_on_visualization()
+    env.start_video_recording(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + "policy_"+weight_dir+'.mp4')
 
     # max_steps = 1000000
-    max_steps = 1000 ## 10 secs
+    max_steps = 100 ## 10 secs
 
     for step in range(max_steps):
         time.sleep(0.01)
         obs = env.observe(False)
         action_ll = loaded_graph.architecture(torch.from_numpy(obs).cpu())
         reward_ll, dones = env.step(action_ll.cpu().detach().numpy())
+
+        
         reward_ll_sum = reward_ll_sum + reward_ll[0]
-        if dones or step == max_steps - 1:
+        if dones.any() or step == max_steps - 1:  
             print('----------------------------------------------------')
             print('{:<40} {:>6}'.format("average ll reward: ", '{:0.10f}'.format(reward_ll_sum / (step + 1 - start_step_id))))
             print('{:<40} {:>6}'.format("time elapsed [sec]: ", '{:6.4f}'.format((step + 1 - start_step_id) * 0.01)))
@@ -71,6 +80,7 @@ else:
             start_step_id = step + 1
             reward_ll_sum = 0.0
 
+    env.stop_video_recording()
     env.turn_off_visualization()
     env.reset()
     print("Finished at the maximum visualization steps")

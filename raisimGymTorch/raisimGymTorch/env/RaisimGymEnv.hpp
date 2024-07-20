@@ -30,6 +30,10 @@ class RaisimGymEnv {
   virtual void init() = 0;
   virtual void reset() = 0;
   virtual void observe(Eigen::Ref<EigenVec> ob) = 0;
+  virtual void getPosition(Eigen::Ref<EigenVec> po) = 0;
+  virtual void getOrientation(Eigen::Ref<EigenVec> ori) = 0;
+  virtual void getJointAngles(Eigen::Ref<EigenVec> ang) = 0;
+  virtual void getTargetVelocity(Eigen::Ref<EigenVec> tVel) = 0;
   virtual float step(const Eigen::Ref<EigenVec>& action) = 0;
   virtual bool isTerminalState(float& terminalReward) = 0;
   ////////////////////////////////////////

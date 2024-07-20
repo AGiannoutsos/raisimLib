@@ -87,6 +87,26 @@ class VectorizedEnvironment {
       updateObservationStatisticsAndNormalize(ob, updateStatistics);
   }
 
+  void getPosition(Eigen::Ref<EigenRowMajorMat> &po) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getPosition(po.row(i));
+  }
+
+  void getOrientation(Eigen::Ref<EigenRowMajorMat> &ori) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getOrientation(ori.row(i));
+  }
+
+  void getJointAngles(Eigen::Ref<EigenRowMajorMat> &ang) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getJointAngles(ang.row(i));
+  }
+
+  void getTargetVelocity(Eigen::Ref<EigenRowMajorMat> &tVel) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getTargetVelocity(tVel.row(i));
+  }
+
 
   void step(Eigen::Ref<EigenRowMajorMat> &action,
             Eigen::Ref<EigenVec> &reward,

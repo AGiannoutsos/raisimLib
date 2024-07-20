@@ -198,6 +198,19 @@
             </geometry>
         </collision>
     </link>
+    <joint name="LF_FOOT_DUMMY_JOINT" type="fixed">
+        <parent link="LF_FOOT"/>
+        <child link="LF_FOOT_DUMMY"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </joint>
+    <link name="LF_FOOT_DUMMY">
+        <collision>
+            <origin xyz="0 0 0.0"/>
+            <geometry>
+                <sphere radius="0.0"/>
+            </geometry>
+        </collision>
+    </link>
 
     <!--
       Right-Fore leg
@@ -321,6 +334,19 @@
             <origin xyz="0 0 0.02325"/>
             <geometry>
                 <sphere radius="0.035"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RF_FOOT_DUMMY_JOINT" type="fixed">
+        <parent link="RF_FOOT"/>
+        <child link="RF_FOOT_DUMMY"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </joint>
+    <link name="RF_FOOT_DUMMY">
+        <collision>
+            <origin xyz="0 0 0.0"/>
+            <geometry>
+                <sphere radius="0.0"/>
             </geometry>
         </collision>
     </link>
@@ -451,6 +477,19 @@
             </geometry>
         </collision>
     </link>
+    <joint name="LH_FOOT_DUMMY_JOINT" type="fixed">
+        <parent link="LH_FOOT"/>
+        <child link="LH_FOOT_DUMMY"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </joint>
+    <link name="LH_FOOT_DUMMY">
+        <collision>
+            <origin xyz="0 0 0.0"/>
+            <geometry>
+                <sphere radius="0.0"/>
+            </geometry>
+        </collision>
+    </link>
 
     <!--
       Right-Hind leg
@@ -574,6 +613,19 @@
             <origin xyz="0 0 0.02325"/>
             <geometry>
                 <sphere radius="0.035"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="RH_FOOT_DUMMY_JOINT" type="fixed">
+        <parent link="RH_FOOT"/>
+        <child link="RH_FOOT_DUMMY"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </joint>
+    <link name="RH_FOOT_DUMMY">
+        <collision>
+            <origin xyz="0 0 0.0"/>
+            <geometry>
+                <sphere radius="0.0"/>
             </geometry>
         </collision>
     </link>
