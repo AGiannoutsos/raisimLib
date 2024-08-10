@@ -35,6 +35,7 @@ class RaisimGymEnv {
   virtual void getJointAngles(Eigen::Ref<EigenVec> ang) = 0;
   virtual void getJointAngularVelocities(Eigen::Ref<EigenVec> angVel) = 0;
   virtual void getJointGeneralizedForces(Eigen::Ref<EigenVec> force) = 0;
+  virtual void getRewardRecords(Eigen::Ref<EigenVec> rewardRecord) = 0;
   virtual void getTargetVelocity(Eigen::Ref<EigenVec> tVel) = 0;
   virtual float step(const Eigen::Ref<EigenVec>& action) = 0;
   virtual bool isTerminalState(float& terminalReward) = 0;
