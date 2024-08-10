@@ -64,6 +64,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     Joint_angles.setZero(12);
     Joint_velocities.setZero(12);
     Joint_forces.setZero(12);
+    Reword_records.setZero(7);
 
     /// action scaling
     actionMean_ = gc_init_.tail(nJoints_);
@@ -178,7 +179,7 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     // penalize angulat speed
     rewards_.record("angVelocity",  std::abs(bodyAngularVel_[2] - 0.0));
-    
+
     return rewards_.sum();
   }
 
