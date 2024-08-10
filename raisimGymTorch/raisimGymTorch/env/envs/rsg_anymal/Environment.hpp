@@ -143,11 +143,13 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     // horizontal speed
     // rewards_.record("forwardVel", -std::max(-1.0, bodyLinearVel_[0]));
-    if (radomTargetVelocity > 0) {
-      rewards_.record("forwardVel", getPositiveTargetVelocity(bodyLinearVel_[0]));
-    } else {
-      rewards_.record("forwardVel", getNegativeTargetVelocity(bodyLinearVel_[0]));
-    }
+    // if (radomTargetVelocity > 0) {
+    //   rewards_.record("forwardVel", getPositiveTargetVelocity(bodyLinearVel_[0]));
+    // } else {
+    //   rewards_.record("forwardVel", getNegativeTargetVelocity(bodyLinearVel_[0]));
+    // }
+    double lin_vel_error = pow(bodyLinearVel_[0] - radomTargetVelocity, 2.0);
+    rewards_.record("forwardVel", std::exp(-lin_vel_error / 0.25));
 
     // calculate foot clearance
     raisim::Vec<3> LF_FOOT_DUMMY_JOINT_joint_position;
@@ -176,10 +178,7 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     // penalize angulat speed
     rewards_.record("angVelocity",  std::abs(bodyAngularVel_[2] - 0.0));
-
     
-    
-
     return rewards_.sum();
   }
 
@@ -290,6 +289,51 @@ class ENVIRONMENT : public RaisimGymEnv {
     force = Joint_forces.cast<float>();
   }
 
+  void getRewardRecords(Eigen::Ref<EigenVec> rewardRecord) {
+    // rewards_.record("torque", anymal_->getGeneralizedForce().squaredNorm());
+    auto torque = anymal_->getGeneralizedForce().squaredNorm() * (-4e-5);
+
+    double lin_vel_error = pow(bodyLinearVel_[0] - radomTargetVelocity, 2.0);
+    // rewards_.record("forwardVel", std::exp(-lin_vel_error / 0.25));
+    auto forwardVel = std::exp(-lin_vel_error / 0.25) * 0.6;
+
+    // calculate foot clearance
+    raisim::Vec<3> LF_FOOT_DUMMY_JOINT_joint_position;
+    raisim::Vec<3> RF_FOOT_DUMMY_JOINT_joint_position;
+    raisim::Vec<3> LH_FOOT_DUMMY_JOINT_joint_position;
+    raisim::Vec<3> RH_FOOT_DUMMY_JOINT_joint_position;
+    anymal_->getFramePosition("LF_FOOT_DUMMY_JOINT", LF_FOOT_DUMMY_JOINT_joint_position);
+    anymal_->getFramePosition("RF_FOOT_DUMMY_JOINT", RF_FOOT_DUMMY_JOINT_joint_position);
+    anymal_->getFramePosition("LH_FOOT_DUMMY_JOINT", LH_FOOT_DUMMY_JOINT_joint_position);
+    anymal_->getFramePosition("RH_FOOT_DUMMY_JOINT", RH_FOOT_DUMMY_JOINT_joint_position);
+    auto foot_clearance = (
+      LF_FOOT_DUMMY_JOINT_joint_position[2] + 
+      RF_FOOT_DUMMY_JOINT_joint_position[2] + 
+      LH_FOOT_DUMMY_JOINT_joint_position[2] + 
+      RH_FOOT_DUMMY_JOINT_joint_position[2]
+    );
+    auto mean_foot_clearance = foot_clearance / 4.0; 
+    // rewards_.record("footClearance", std::min(2.0, mean_foot_clearance));
+    auto footClearance = std::min(2.0, mean_foot_clearance) * 0.6;
+
+    // remove jumping behaviour by penalizing the body height movement
+    // rewards_.record("bodyHeight", std::abs(gc_[2] - 0.5));
+    auto bodyHeight = std::abs(gc_[2] - 0.5) * (-0.3);
+
+    // penalize yz valocity movement
+    // rewards_.record("yVel", std::abs(bodyLinearVel_[1] - 0.0));
+    // rewards_.record("zVel", std::abs(bodyLinearVel_[2] - 0.0));
+    auto yVel = std::abs(bodyLinearVel_[1] - 0.0) * (-0.3);
+    auto zVel = std::abs(bodyLinearVel_[2] - 0.0) * (-0.3);
+
+    // penalize angulat speed
+    // rewards_.record("angVelocity",  std::abs(bodyAngularVel_[2] - 0.0));
+    auto angVelocity = std::abs(bodyAngularVel_[2] - 0.0) * (-0.3);
+
+    Reword_records << torque, forwardVel, footClearance, bodyHeight, yVel, zVel, angVelocity;
+    rewardRecord = Reword_records.cast<float>();
+  }
+
   void getTargetVelocity(Eigen::Ref<EigenVec> tVel) {
      Eigen::VectorXd target_velocity;
      target_velocity.setZero(1);
@@ -331,7 +375,7 @@ class ENVIRONMENT : public RaisimGymEnv {
   raisim::ArticulatedSystem* anymal_;
   Eigen::VectorXd gc_init_, gv_init_, gc_, gv_, pTarget_, pTarget12_, vTarget_;
   double terminalRewardCoeff_ = -10.;
-  Eigen::VectorXd actionMean_, actionStd_, obDouble_, Joint_angles, Joint_velocities, Joint_forces;
+  Eigen::VectorXd actionMean_, actionStd_, obDouble_, Joint_angles, Joint_velocities, Joint_forces, Reword_records;
   Eigen::Vector3d bodyLinearVel_, bodyAngularVel_;
   std::set<size_t> footIndices_;
 
