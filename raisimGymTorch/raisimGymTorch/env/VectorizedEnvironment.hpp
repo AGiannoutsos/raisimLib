@@ -112,6 +112,11 @@ class VectorizedEnvironment {
       environments_[i]->getJointGeneralizedForces(force.row(i));
   }
 
+  void getRewardRecords(Eigen::Ref<EigenRowMajorMat> &reward) {
+    for (int i = 0; i < num_envs_; i++)
+      environments_[i]->getRewardRecords(reward.row(i));
+  }
+
   void getTargetVelocity(Eigen::Ref<EigenRowMajorMat> &tVel) {
     for (int i = 0; i < num_envs_; i++)
       environments_[i]->getTargetVelocity(tVel.row(i));

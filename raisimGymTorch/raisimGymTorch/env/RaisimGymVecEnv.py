@@ -24,6 +24,7 @@ class RaisimGymVecEnv:
         self._joint_angles = np.zeros([self.num_envs, 12], dtype=np.float32)
         self._joint_angular_velocities = np.zeros([self.num_envs, 12], dtype=np.float32)
         self._joint_forces = np.zeros([self.num_envs, 12], dtype=np.float32)
+        self._reward_records = np.zeros([self.num_envs, 7], dtype=np.float32)
         self._target_velocity = np.zeros([self.num_envs, 1], dtype=np.float32)
         self.actions = np.zeros([self.num_envs, self.num_acts], dtype=np.float32)
         self.log_prob = np.zeros(self.num_envs, dtype=np.float32)
@@ -92,6 +93,10 @@ class RaisimGymVecEnv:
     def getJointGeneralizedForces(self):
         self.wrapper.getJointGeneralizedForces(self._joint_forces)
         return self._joint_forces
+    
+    def getRewardRecords(self):
+        self.wrapper.getRewardRecords(self._reward_records)
+        return self._reward_records
     
     def getTargetVelocity(self):
         self.wrapper.getTargetVelocity(self._target_velocity)
